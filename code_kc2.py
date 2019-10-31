@@ -31,14 +31,18 @@ df_resm, kelas_res = sm.fit_sample(df, kelas)
 
 print('After: Class{}'. format(Counter(kelas_res)))
 
+#ltsa
+
+embedding = LocallyLinearEmbedding(method='ltsa',eigen_solver='dense', n_components=5)
+X_transformed = embedding.fit_transform(df_resm)
+
 #correlation
 
-df_resm=pd.DataFrame(df_resm)
+X_transformed=pd.DataFrame(X_transformed)
 
 import seaborn as sns
 import numpy as np
-corr = df_resm.corr()
-sns.heatmap(corr)
+corr = X_transformed.corr()
 
 columns = np.full((corr.shape[0],), True, dtype=bool)
 for i in range(corr.shape[0]):
@@ -46,8 +50,8 @@ for i in range(corr.shape[0]):
         if corr.iloc[i,j] >= 0.9:
             if columns[j]:
                 columns[j] = False
-selected_columns = df_resm.columns[columns]
-df_resm = df_resm[selected_columns]
+selected_columns = X_transformed.columns[columns]
+X_transformed = X_transformed[selected_columns]
 
 ##plotting imbalance
 
@@ -71,10 +75,7 @@ plt.ylabel('value')
 plt.legend()
 plt.show()
 
-#ltsa
-
-embedding = LocallyLinearEmbedding(method='ltsa',eigen_solver='dense', n_components=5)
-X_transformed = embedding.fit_transform(df_resm)
+sns.heatmap(corr)
 
 #svm and grid search
 
