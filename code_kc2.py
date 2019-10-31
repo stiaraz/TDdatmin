@@ -3,6 +3,7 @@
 Created on Mon Oct 28 20:00:06 2019
 
 @author: SYAVIRA TIARA Z
+@co-author : ANA AZ
 """
 
 import pandas as pd
