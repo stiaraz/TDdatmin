@@ -30,6 +30,8 @@ df=scaler.fit_transform(df)
 sm = SMOTETomek()
 df_resm, kelas_res = sm.fit_sample(df, kelas)
 
+#plotting imbalance
+
 print('After: Class{}'. format(Counter(kelas_res)))
 besar= dataset.groupby(kelas).size()
 besar=list(besar)
@@ -48,18 +50,14 @@ plt.xlabel('class')
 plt.ylabel('value')
 plt.legend()
 plt.show()
-#ltsa
-
-embedding = LocallyLinearEmbedding(method='ltsa',eigen_solver='dense', n_components=5)
-X_transformed = embedding.fit_transform(df_resm)
 
 #correlation
 
-X_transformed=pd.DataFrame(X_transformed)
+df_resm=pd.DataFrame(df_resm)
 
 import seaborn as sns
 import numpy as np
-corr = X_transformed.corr()
+corr = df_resm.corr()
 
 sns.heatmap(corr)
 
@@ -69,8 +67,13 @@ for i in range(corr.shape[0]):
         if corr.iloc[i,j] >= 0.9:
             if columns[j]:
                 columns[j] = False
-selected_columns = X_transformed.columns[columns]
-X_transformed = X_transformed[selected_columns]
+selected_columns = df_resm.columns[columns]
+df_resm = df_resm[selected_columns]
+
+#ltsa
+
+embedding = LocallyLinearEmbedding(method='ltsa',eigen_solver='dense', n_components=5)
+X_transformed = embedding.fit_transform(df_resm)
 
 #svm and grid search
 
@@ -81,3 +84,20 @@ svm = SVC(kernel='rbf',gamma='auto')
 clf = GridSearchCV(svm, parameters, cv=10)
 clf.fit(X_transformed, kelas_res)
 print(clf.best_score_)
+
+bestmodel = clf.best_estimator_
+
+
+y_pred = bestmodel.predict(X_transformed)
+
+
+from sklearn.metrics import classification_report
+y_true_svm = kelas_res
+y_pred_svm = y_pred
+print(classification_report(y_true_svm, y_pred_svm))
+
+
+
+from sklearn import metrics
+csvmtrain = metrics.confusion_matrix(y_true_svm, y_pred)
+print(csvmtrain)
