@@ -28,18 +28,18 @@ del df[21]
 
 x_train, x_test, y_train, y_test = train_test_split(df, kelas, test_size= .1, random_state=10)
 
-#PCA
-#from sklearn.preprocessing import StandardScaler
-#standardizedData = StandardScaler().fit_transform(df_res)
-#pca = PCA(n_components=2)
-#df_res = pca.fit_transform(X = standardizedData)
-
 #balancing data
-sm = SMOTETomek()
+#sm = SMOTETomek()
 #sm = SMOTE(random_state=42)
+from imblearn.over_sampling import BorderlineSMOTE
+sm = BorderlineSMOTE(random_state=42)
 df_resm, kelas_res = sm.fit_sample(df, kelas)
-#df_res_vis = pca.transform(df_resm)
+from imblearn.under_sampling import TomekLinks
+tl = TomekLinks()
+df_resm2, kelas_res2 = tl.fit_sample(df_resm, kelas_res)
 print('After: Class{}'. format(Counter(kelas_res)))
+#df_res_vis = pca.transform(df_resm)
+
 
 besar= dataset.groupby(kelas).size()
 besar=list(besar)
@@ -58,6 +58,40 @@ plt.ylabel('value')
 plt.legend()
 plt.show()
 
+#normalization
+
+from sklearn.preprocessing import MinMaxScaler
+scaler = MinMaxScaler()
+df2=scaler.fit_transform(df_resm2)
+
+#ltsa
 embedding = LocallyLinearEmbedding(n_components=5, method='ltsa', eigen_solver='dense')
-# method='hessian', eigen_solver='dense'
 X_transformed = embedding.fit_transform(df_resm)
+
+#cfs
+df2=pd.DataFrame(df2)
+
+import seaborn as sns
+import numpy as np
+corr = df2.corr()
+
+sns.heatmap(corr)
+
+columns = np.full((corr.shape[0],), True, dtype=bool)
+for i in range(corr.shape[0]):
+    for j in range(i+1, corr.shape[0]):
+        if corr.iloc[i,j] >= 0.9:
+            if columns[j]:
+                columns[j] = False
+selected_columns = df2.columns[columns]
+df2= df2[selected_columns]
+
+#svm and grid search
+
+from sklearn.model_selection import GridSearchCV
+from sklearn.svm import SVC
+parameters = {'C':[1, 10]}
+svm = SVC(kernel='rbf',gamma='auto')
+clf = GridSearchCV(svm, parameters, cv=10)
+clf.fit(df2, kelas_res2)
+print(clf.best_score_)
