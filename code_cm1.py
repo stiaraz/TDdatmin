@@ -17,8 +17,9 @@ from imblearn.combine import SMOTETomek
 from imblearn.over_sampling import SMOTE
 from sklearn.decomposition import PCA
 from sklearn.manifold import LocallyLinearEmbedding
+from GA import *
 
-dataset= pd.read_csv('../dataset/cm1.csv', skiprows = range(0,355), header = None)
+dataset= pd.read_csv('dataset/cm1.csv', skiprows = range(0,355), header = None)
 
 kelas= dataset[21]
 print('Before: Class{}'. format(Counter(kelas)))
@@ -61,3 +62,45 @@ plt.show()
 embedding = LocallyLinearEmbedding(n_components=5, method='ltsa',eigen_solver='dense')
 # method='hessian', eigen_solver='dense'
 X_transformed = embedding.fit_transform(df_resm)
+X_transformed=pd.DataFrame(X_transformed)
+
+k = 0
+Krom = []
+while k < 10:
+    i = random.randint(1,20)
+    if i == 0:
+        continue
+    elif i not in Krom:
+        Krom.append(i)
+        k += 1
+    else:
+        continue
+print (Krom)
+new_child=[]
+for x in range(1,31):
+#            print "loop = "+str(x)
+    Krom=Krom[:k] + new_child
+    cumulatived()
+    prob_fitness, cumulative=cumulatived()
+    roulette, Random_log=rouletteWheel()        
+    Krom=roulette
+    cross=crossover(int(len(dataset)/10), )
+    new_child=desimal(cross)
+
+k_fixed=prob_fitness.index(max(prob_fitness))
+print ("c optimal     : " + str(Krom[k_fixed]))
+
+import seaborn as sns
+import numpy as np
+#corr = X_transformed.corr()
+corr=df_resm.corr()
+sns.heatmap(corr)
+
+columns = np.full((corr.shape[0],), True, dtype=bool)
+for i in range(corr.shape[0]):
+    for j in range(i+1, corr.shape[0]):
+        if corr.iloc[i,j] >= Krom[k_fixed]:
+            if columns[j]:
+                columns[j] = False
+selected_columns = df_resm.columns[columns]
+df_resm = df_resm[selected_columns]
