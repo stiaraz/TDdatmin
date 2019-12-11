@@ -256,10 +256,10 @@ if __name__ == '__main__':
             svc = clf.fit(x_train, y_train)
             svm_result = svc.predict(x_test)
             akurasi = float(sm.accuracy_score(svm_result, y_test)) * 100
-            recallyes = float(sm.recall_score(svm_result, y_test, pos_label="True")) * 100
-            recallno = float(sm.recall_score(svm_result, y_test, pos_label="False")) * 100
-            precisionyes = float(sm.precision_score(svm_result, y_test, pos_label="True")) * 100
-            precisionno = float(sm.precision_score(svm_result, y_test, pos_label="False")) * 100
+            recallyes = float(sm.recall_score(svm_result, y_test, pos_label="yes")) * 100
+            recallno = float(sm.recall_score(svm_result, y_test, pos_label="no")) * 100
+            precisionyes = float(sm.precision_score(svm_result, y_test, pos_label="yes")) * 100
+            precisionno = float(sm.precision_score(svm_result, y_test, pos_label="no")) * 100
             
             svm_accuracy += akurasi
             svm_recall_yes += recallyes

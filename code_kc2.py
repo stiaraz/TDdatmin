@@ -76,11 +76,10 @@ df_resm = df_resm[selected_columns]
 #X_transformed = embedding.fit_transform(df_resm)
 
 #svm and grid search
-
 from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVC
 parameters = {'C':[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30]}
-svm = SVC(kernel='rbf',gamma='10')
+svm = SVC(kernel='rbf',gamma=10)
 clf = GridSearchCV(svm, parameters, cv=10)
 clf.fit(df_resm, kelas_res)
 
@@ -108,7 +107,6 @@ scores = cross_validate(bestmodel, df_resm, kelas_res, cv=10, scoring =scoring)
 print("Accuracy: %0.4f " % (scores['test_accuracy'].mean()))
 print("RECALL: %0.4f " % (scores['test_precision_macro'].mean()))
 print("PRESISI: %0.4f )" % (scores['test_recall_macro'].mean()))
-
 
 y_pred = bestmodel.predict(df_resm)
 
